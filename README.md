@@ -8,9 +8,9 @@ Race On code ported to ROS. This is the main respository for race-on.
 
 # Things to do
 - [x] Run the basic codes
-- [] Finish a lap with the basic codes
-- [] Add PID to ros code (see [ros tutorial](https://raceon.io/workshops/1_ros/)
-- [] Add gain scheduling (see [gain scheduling tutorial](https://raceon.io/workshops/2_gain_scheduling/)
+- [ ] Finish a lap with the basic codes
+- [ ] Add PID to ros code (see [ros tutorial](https://raceon.io/workshops/1_ros/)
+- [ ] Add gain scheduling (see [gain scheduling tutorial](https://raceon.io/workshops/2_gain_scheduling/)
 
 # Useful link
 [race on website](https://raceon.io/)
