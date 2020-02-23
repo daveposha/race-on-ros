@@ -11,7 +11,7 @@ To add argument to change the ros node parameters, you can add `<arg name="xxx" 
 - ```Staging```: All *tested* codes on race-on-ros
 - Other branches: development branches and merge request needs to be submitted to *staging* for merge.
 
-# Things to do
+# Things to do before race 1 (Feb 29, 2020 Saturday)
 - [x] Run the basic codes
 - [ ] Finish a lap with the basic codes
 - [ ] Add PID to ros code (see [ros tutorial](https://raceon.io/workshops/1_ros/))
