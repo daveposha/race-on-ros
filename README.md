@@ -17,5 +17,5 @@ To add argument to change the ros node parameters, you can add `<arg name="xxx" 
 - [ ] Add PID to ros code (see [ros tutorial](https://raceon.io/workshops/1_ros/))
 - [ ] Add gain scheduling (see [gain scheduling tutorial](https://raceon.io/workshops/2_gain_scheduling/))
 
-# Useful link
-[race on website](https://raceon.io/)
+# Useful links
+- [race on website](https://raceon.io/)
