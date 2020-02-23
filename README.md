@@ -1,6 +1,10 @@
 # race-on-ros
 Race On code ported to ROS. This is the main respository for race-on. 
 
+# Setting Up ROS for Your Car¶
+
+To run the ros nodes, run `roslaunch raceon raceon.launch speed:=140`
+
 # Branch you need to know
 - ```Master```: The release code for race day. Everything is *tested* and will released from staging branch
 - ```Staging```: All *tested* codes on race-on-ros
