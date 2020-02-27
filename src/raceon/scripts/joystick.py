@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 
-import rospy
 import pygame
+import rospy
+from std_msgs.msg import Float32
 
 class JoystickControl():
 
     def __init__(self):
+        self.topic_name_control = rospy.get_param("topic_name_joystick", "joytick")
+
+    def start(self):
         # Setup joystick
         pygame.init()
         self.clock = pygame.time.Clock()
@@ -13,7 +17,11 @@ class JoystickControl():
         self.joystick_count = pygame.joystick.get_count()
         joystick = pygame.joystick.Joystick(0)
         joystick.init()
-        self.axes = joystick.get_numaxes()
+        self.axes = joystick.get_numaxes
+
+        self.pub_jostick = rospy.Publisher('data', Float32, queue_size=1)
+
+        rospy.spin()
 
 # joystick
 for event in pygame.event.get():  # User did something.
