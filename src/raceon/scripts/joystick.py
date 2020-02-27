@@ -2,43 +2,40 @@
 
 import pygame
 import rospy
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, Bool
 
-class Joystick():
+
+
+class JoystickNode:
 
     def __init__(self):
-        self.topic_name_control = rospy.get_param("topic_name_joystickSteering", "joystickSteering")
-        self.topic_name_control = rospy.get_param("topic_name_joystickGas", "joytickGas")
-        self.topic_name_control = rospy.get_param("topic_name_joystickState", "joytickState")
+        self.topic_name_joystick_steer = rospy.get_param("topic_name_joystick_steer", "joystick/steer")
+        self.topic_name_joystick_gas = rospy.get_param("topic_name_joystick_gas", "joystick/gas")
+        self.topic_name_joystick_on = rospy.get_param("topic_name_joystick_on", "joystick/on")
 
-    def start(self):
+        self.pub_joystick_steer = rospy.Publisher(self.topic_name_joystick_steer, Float32, queue_size=1)
+        self.pub_joystick_gas = rospy.Publisher(self.topic_name_joystick_gas, Float32, queue_size=1)
+        self.pub_joystick_on = rospy.Publisher(self.topic_name_joystick_on, Bool, queue_size=1)
+
+        self.RATE = 60  # Publishing rate of new data per second
+        self.rospy_rate = rospy.Rate(self.RATE)
+
         # Setup joystick
+        self.joystickOn = False
         pygame.init()
         self.clock = pygame.time.Clock()
         pygame.joystick.init()
         self.joystick_count = pygame.joystick.get_count()
-        joystick = pygame.joystick.Joystick(0)
-        joystick.init()
-        self.axes = joystick.get_numaxes
-
-        self.pub_jostick = rospy.Publisher('data', Float32, queue_size=1)
-
-        rospy.spin()
-
-# joystick
-
-
+        self.joystick = pygame.joystick.Joystick(0)
+        self.joystick.init()
+        self.axes = self.joystick.get_numaxes
 
 
 # Execute this when run as a script
 if __name__ == '__main__':
 
-    rospy.init_node('publisher')
-    my_joystick = Joystick()
-
-    pub  = rospy.Publisher('data', Float32, queue_size=1)
-    rate = rospy.Rate(RATE)
-    step = 0
+    rospy.init_node('joystick')
+    joystick_node = JoystickNode()
 
     while not rospy.is_shutdown():
 
@@ -48,29 +45,26 @@ if __name__ == '__main__':
             elif event.type == pygame.JOYBUTTONUP:
                 print("Joystick button released.")
 
-        steering = my_joystick.joystick.get_axis(0)  # left stick x axis
-        print("steering: " + str(steering))
-        DUTY_CYCLE = int(SERVO_MIDDLE + 500000 * steering)
+        steering = joystick_node.joystick.get_axis(0)  # left stick x axis
+        # print("steering: " + str(steering))
+        joystick_node.pub_joystick_steer.publish(steering)
+        # DUTY_CYCLE = int(SERVO_MIDDLE + 500000 * steering)
 
-        gas = (my_joystick.joystick.get_axis(5) + 1) / 2  # right trigger, normalize from (-1, 1) to (0, 1)
-        print("gas: " + str(gas))
-        motor.duty_cycle = int(MOTOR_BRAKE + (180000 - MOTOR_BRAKE) * gas)
+        gas = (joystick_node.joystick.get_axis(5) + 1) / 2  # right trigger, normalize from (-1, 1) to (0, 1)
+        # print("gas: " + str(gas))
+        joystick_node.pub_joystick_gas.publish(gas)
 
-        if joystick.get_button(2):  # "x" button
-            RUN_TIMER = 0  # stop the loop
+        # motor.duty_cycle = int(MOTOR_BRAKE + (180000 - MOTOR_BRAKE) * gas)
 
-        # Generate new data point
-        value = math.sin(2*math.pi*step/RATE)
-
-        # Log and publish data
-        rospy.loginfo("Publishing {:.3f}".format(value))
-        pub.publish(value)
-
-        # Advance the sequence
-        step = step + 1
+        if joystick_node.joystick.get_button(2):  # "X" button
+            joystick_node.joystickOn = False
+        # TODO: add button
+        elif joystick_node.joystick.get_button(...):  # "A" button
+            joystick_node.joystickOn = True
+        joystick_node.pub_joystick_on.publish(joystick_node.joystickOn)
 
         # Wait to match the rate
-        rate.sleep()
+        joystick_node.rospy_rate.sleep()
 
     # joystick
     pygame.quit()

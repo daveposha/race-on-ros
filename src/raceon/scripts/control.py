@@ -2,8 +2,10 @@
 # license removed for brevity
 
 import rospy
+from std_msgs.msg import Float32, Bool
 from geometry_msgs.msg import Pose
 from raceon.msg import AckermannDrive
+
 
 SERVO_MIN = -900
 SERVO_MIDDLE = 0
@@ -19,10 +21,21 @@ class Controller():
         self.motor_speed = rospy.get_param("~motor_speed", 200)
         self.target = rospy.get_param("~target", 0)
         self.kp = rospy.get_param("~kp", 1)
+
+        # Joystick
+        self.topic_name_joystick_steer = rospy.get_param("topic_name_joystick_steer", "joystick/steer")
+        self.topic_name_joystick_gas = rospy.get_param("topic_name_joystick_gas", "joystick/gas")
+        self.topic_name_joystick_on = rospy.get_param("topic_name_joystick_on", "joystick/on")
     
     def start(self):
         self.sub_pos_err = rospy.Subscriber(self.topic_name_pos_err, Pose, self.pos_err_callback)
         self.pub_control = rospy.Publisher(self.topic_name_control, AckermannDrive, queue_size=10)
+
+        # joystick
+        self.sub_joystick_steer = rospy.Subscriber(self.topic_name_joystick_steer, Float32, self.joystick_steer_callback)
+        self.sub_joystick_gas = rospy.Subscriber(self.topic_name_joystick_gas, Float32, self.joystick_gas_callback)
+        self.sub_joystick_on = rospy.Subscriber(self.topic_name_joystick_on, Bool, self.joystick_on_callback)
+
         rospy.spin()
 
     def pos_err_callback(self, pos_err_msg):
