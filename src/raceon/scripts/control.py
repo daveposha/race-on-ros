@@ -26,6 +26,8 @@ class Controller():
         self.topic_name_joystick_steer = rospy.get_param("topic_name_joystick_steer", "joystick/steer")
         self.topic_name_joystick_gas = rospy.get_param("topic_name_joystick_gas", "joystick/gas")
         self.topic_name_joystick_on = rospy.get_param("topic_name_joystick_on", "joystick/on")
+        self.joystick_control = False
+        self.joystick_motor_speed = 0;
     
     def start(self):
         self.sub_pos_err = rospy.Subscriber(self.topic_name_pos_err, Pose, self.pos_err_callback)
@@ -38,20 +40,60 @@ class Controller():
 
         rospy.spin()
 
+    def joystick_on_callback(self, joystick_on_msg):
+        if joystick_on_msg is True:
+            self.joystick_control = True
+
+        if joystick_on_msg is False:
+            self.joystick_control = False
+
+    def joystick_steer_callback(self, joystick_steer_msg):
+        if self.joystick_control is True:
+            steering = joystick_steer_msg
+            # print("steering: " + str(steering))
+            self.joystick_servo_pos = int(SERVO_MIDDLE + SERVO_MAX * steering)
+
+            if self.joystick_servo_pos > SERVO_MAX:
+                self.joystick_servo_pos = SERVO_MAX
+            if self.joystick_servo_pos < SERVO_MIN:
+                self.joystick_servo_pos = SERVO_MIN
+
+            rospy.loginfo("Control command: servo_pos = " + str(self.joystick_servo_pos) + ", motor_speed = " + str(self.joystick_motor_speed))
+
+            control_msg = AckermannDrive()
+            control_msg.speed = self.joystick_motor_speed
+            control_msg.steering_angle = self.joystick_servo_pos
+            self.pub_control.publish(control_msg)
+
+    def joystick_gas_callback(self, joystick_gas_msg):
+        if self.joystick_control is True:
+            gas = joystick_gas_msg
+            #print("gas: " + str(gas))
+            self.joystick_motor_speed = int(self.motor_speed * gas)
+
+            rospy.loginfo("Control command: servo_pos = " + str(self.joystick_servo_pos) + ", motor_speed = " + str(
+                self.joystick_motor_speed))
+
+            control_msg = AckermannDrive()
+            control_msg.speed = self.joystick_motor_speed
+            control_msg.steering_angle = self.joystick_servo_pos
+            self.pub_control.publish(control_msg)
+
     def pos_err_callback(self, pos_err_msg):
-        pos_err = self.target - pos_err_msg.position.x
-        
-        rospy.loginfo("Current error: pos_err = " + str(pos_err))
-        
-        servo_pos = self.control_servo(pos_err)
-        motor_speed = self.motor_speed
-        
-        rospy.loginfo("Control command: servo_pos = " + str(servo_pos) + ", motor_speed = " + str(motor_speed))
-        
-        control_msg = AckermannDrive()
-        control_msg.speed = motor_speed
-        control_msg.steering_angle = servo_pos
-        self.pub_control.publish(control_msg)
+        if self.joystick_control is False:
+            pos_err = self.target - pos_err_msg.position.x
+
+            rospy.loginfo("Current error: pos_err = " + str(pos_err))
+
+            servo_pos = self.control_servo(pos_err)
+            motor_speed = self.motor_speed
+
+            rospy.loginfo("Control command: servo_pos = " + str(servo_pos) + ", motor_speed = " + str(motor_speed))
+
+            control_msg = AckermannDrive()
+            control_msg.speed = motor_speed
+            control_msg.steering_angle = servo_pos
+            self.pub_control.publish(control_msg)
         
     # TODO: Implement PID
     def pid(self, error):

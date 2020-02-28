@@ -5,7 +5,6 @@ import rospy
 from std_msgs.msg import Float32, Bool
 
 
-
 class JoystickNode:
 
     def __init__(self):
