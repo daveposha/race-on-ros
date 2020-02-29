@@ -41,15 +41,16 @@ class Controller():
         rospy.spin()
 
     def joystick_on_callback(self, joystick_on_msg):
-        if joystick_on_msg is True:
+        if joystick_on_msg.data is True:
             self.joystick_control = True
 
-        if joystick_on_msg is False:
+        if joystick_on_msg.data is False:
             self.joystick_control = False
+
 
     def joystick_steer_callback(self, joystick_steer_msg):
         if self.joystick_control is True:
-            steering = joystick_steer_msg
+            steering = joystick_steer_msg.data
             # print("steering: " + str(steering))
             self.joystick_servo_pos = int(SERVO_MIDDLE + SERVO_MAX * steering)
 
@@ -67,7 +68,7 @@ class Controller():
 
     def joystick_gas_callback(self, joystick_gas_msg):
         if self.joystick_control is True:
-            gas = joystick_gas_msg
+            gas = joystick_gas_msg.data
             #print("gas: " + str(gas))
             self.joystick_motor_speed = int(self.motor_speed * gas)
 

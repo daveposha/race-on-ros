@@ -58,7 +58,7 @@ if __name__ == '__main__':
         if joystick_node.joystick.get_button(2):  # "X" button
             joystick_node.joystickOn = False
         # TODO: add button
-        elif joystick_node.joystick.get_button(...):  # "A" button
+        elif joystick_node.joystick.get_button(0):  # "A" button
             joystick_node.joystickOn = True
         joystick_node.pub_joystick_on.publish(joystick_node.joystickOn)
 
